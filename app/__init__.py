@@ -19,11 +19,22 @@ def create_app():
     
     app.config['SECRET_KEY'] = secret_key
     
+    # Initialize database connection and indexes
+    from app.database import init_db
+    init_db()
+    
+    # Register blueprints
+    from app.auth import auth_bp
+    app.register_blueprint(auth_bp)
+    
     # Health check route
     @app.route('/health', methods=['GET'])
     def health():
+        from app.database import check_connection
+        mongo_status = 'connected' if check_connection() else 'disconnected'
         return jsonify({
-            'status': 'healthy'
+            'status': 'healthy',
+            'mongo': mongo_status
         })
     
     return app
