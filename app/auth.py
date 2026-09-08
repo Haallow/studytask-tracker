@@ -10,8 +10,12 @@ from app.models import is_plain_string, validate_password_length
 
 auth_bp = Blueprint('auth', __name__)
 
+# Import limiter for rate limiting
+from app import limiter
+
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("10 per minute")
 def register():
     """Register a new user account."""
     data = request.get_json()
@@ -84,6 +88,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute")
 def login():
     """Authenticate a user and create a session."""
     data = request.get_json()
